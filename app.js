@@ -1,27 +1,28 @@
 require("dotenv").config();
 const express = require("express");
-const { auth } = require('express-openid-connect');
+const jwt = require('express-jwt');
+const jwks = require('jwks-rsa');
 const app = express();
 
 app.set("view engine", "ejs");
 app.use(express.json(), express.urlencoded({extended: false}));
 
-const config = {
-  authRequired: false,
-  auth0Logout: true,
-  secret: process.env.AUTH0_CLIENT_SECRET,
-  baseURL: 'https://myauth0api.herokuapp.com',
-  clientID: process.env.AUTH0_CLIENT_ID,
-  issuerBaseURL: 'https://dev-j5dnvaff.us.auth0.com'
-};
-app.use(auth(config));
-
-app.get("/", (req, res) => {
-  res.send("Home page");
+const jwtCheck = jwt({
+  secret: jwks.expressJwtSecret({
+      cache: true,
+      rateLimit: true,
+      jwksRequestsPerMinute: 5,
+      jwksUri: 'https://dev-j5dnvaff.us.auth0.com/.well-known/jwks.json'
+  }),
+  audience: 'https://myauth0api.herokuapp.com/api/auth',
+  issuer: 'https://dev-j5dnvaff.us.auth0.com/',
+  algorithms: ['RS256']
 });
 
-app.get("/api/callback", (req, res) => {
-  res.send("Callback page");
+app.use(jwtCheck);
+
+app.get('/authorized', function (req, res) {
+  res.send('Secured Resource');
 });
 
 app.listen(process.env.PORT||3000, function(err){
