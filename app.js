@@ -10,7 +10,7 @@ const config = {
   authRequired: false,
   auth0Logout: true,
   secret: process.env.AUTH0_CLIENT_SECRET,
-  baseURL: 'https://myauth0api.herokuapp.com',
+  baseURL: 'https://myauth0api.herokuapp.com/api',
   clientID: process.env.AUTH0_CLIENT_ID,
   issuerBaseURL: 'https://dev-j5dnvaff.us.auth0.com'
 };
